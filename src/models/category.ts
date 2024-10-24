@@ -1,4 +1,4 @@
-import knex from '../models/knex'; // Adjust the path as needed
+import knex from '../models/knex';
 
 interface Category {
   id: number;

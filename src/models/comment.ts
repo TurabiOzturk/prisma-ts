@@ -5,7 +5,7 @@ interface Comment {
   post_id: number;
   content: string;
   commenter_name: string;
-  created_at?: Date;
+  created_at: Date;
 }
 
 const CommentModel = {
@@ -17,15 +17,15 @@ const CommentModel = {
     return knex<Comment>("comments").where({ id }).first();
   },
 
-  create: (post: Omit<Comment, "id">): Promise<Comment[]> => {
-    return knex<Comment>("comments").insert(post).returning("*");
+  create: (comment: Omit<Comment, "id">): Promise<Comment[]> => {
+    return knex<Comment>("comments").insert(comment).returning("*");
   },
 
   update: (
     id: number,
-    post: Partial<Omit<Comment, "id">>
+    comment: Partial<Omit<Comment, "id">>
   ): Promise<Comment[]> => {
-    return knex<Comment>("comments").where({ id }).update(post).returning("*");
+    return knex<Comment>("comments").where({ id }).update(comment).returning("*");
   },
 
   delete: (id: number): Promise<Comment[]> => {

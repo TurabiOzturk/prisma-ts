@@ -1,0 +1,68 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Category {
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now()) @map("created_at")
+  deletedAt DateTime? @map("deleted_at")
+  posts     Post[]
+
+  @@map("categories")
+}
+
+model Post {
+  id          Int       @id @default(autoincrement())
+  categoryId  Int       @map("category_id")
+  title       String
+  content     String
+  createdAt   DateTime  @default(now()) @map("created_at")
+  deletedAt   DateTime? @map("deleted_at")
+  publishedAt DateTime? @map("published_at")
+  category    Category  @relation(fields: [categoryId], references: [id])
+  comment     Comment[]
+  postTag     PostTag[]
+
+  @@map("posts")
+}
+
+model Comment {
+  id            Int      @id @default(autoincrement())
+  postId        Int      @map("post_id")
+  content       String
+  commenterName String   @map("commenter_name")
+  createdAt     DateTime @default(now()) @map("created_at")
+  post          Post     @relation(fields: [postId], references: [id])
+
+  @@map("comments")
+}
+
+model Tag {
+  id      Int       @id @default(autoincrement())
+  name    String
+  postTag PostTag[]
+
+  @@map("tags")
+}
+
+model PostTag {
+  postId Int  @map("post_id")
+  tagId  Int  @map("tag_id")
+  post   Post @relation(fields: [postId], references: [id])
+  tag    Tag  @relation(fields: [tagId], references: [id])
+
+  @@id([postId, tagId])
+  @@map("post_tags")
+}

@@ -1,38 +1,81 @@
-import knex from "../models/knex";
+import { PrismaClient } from "@prisma/client";
+import { SHOW_DELETED, POST_STATUS } from "../const.js";
 
-interface Post {
-  id: number;
-  category_id: number;
-  title: string;
-  content: string;
-  created_at?: Date;
-  published_at?: Date | null;
-  deleted_at?: Date | null;
-}
+const prisma = new PrismaClient();
 
-const PostModel = {
-  getAll: (): Promise<Post[]> => {
-    return knex<Post>("posts").whereNull("deleted_at");
+const Post = {
+  getAll: async (query_string: {
+    status?: string;
+    showDeleted?: string;
+    category?: string;
+  }) => {
+    const { category, status, showDeleted } = query_string;
+    let query_conditions: any = {};
+
+    if (showDeleted === SHOW_DELETED.FALSE) {
+      query_conditions.deletedAt = null;
+    } else if (showDeleted === SHOW_DELETED.ONLY_DELETED) {
+      query_conditions.deletedAt = { not: null };
+    } else if (showDeleted !== SHOW_DELETED.TRUE) {
+      query_conditions.deletedAt = null;
+    }
+
+    if (category) {
+      query_conditions.category_id = Number(category);
+    }
+
+    if (status === POST_STATUS.PUBLISHED) {
+      query_conditions.publishedAt = { not: null };
+    } else if (status === POST_STATUS.DRAFT) {
+      query_conditions.publishedAt = null;
+      query_conditions.deletedAt = null;
+    }
+
+    return await prisma.post.findMany({
+      where: query_conditions,
+    });
   },
 
-  getById: (id: number): Promise<Post | undefined> => {
-    return knex<Post>("posts").where({ id }).first();
+  create: async (categoryId: number, title: string, content: string) => {
+    return await prisma.post.create({
+      data: {
+        categoryId,
+        title,
+        content,
+      },
+    });
   },
 
-  create: (post: Omit<Post, "id">): Promise<Post[]> => {
-    return knex<Post>("posts").insert(post).returning("*");
+  getById: async (id: number) => {
+    return await prisma.post.findUnique({
+      where: { id: Number(id) },
+    });
   },
 
-  update: (id: number, post: Partial<Omit<Post, "id">>): Promise<Post[]> => {
-    return knex<Post>("posts").where({ id }).update(post).returning("*");
+  update: async (
+    id: number,
+    categoryId?: number,
+    title?: string,
+    content?: string,
+    publishedAt?: Date | null
+  ) => {
+    return await prisma.post.update({
+      where: { id: Number(id) },
+      data: {
+        categoryId,
+        title,
+        content,
+        publishedAt,
+      },
+    });
   },
-
-  delete: (id: number): Promise<Post[]> => {
-    return knex<Post>("posts")
-      .where({ id })
-      .update({ deleted_at: knex.fn.now() })
-      .returning("*");
+ 
+  delete: async (id: number) => {
+    return await prisma.post.update({
+      where: { id: Number(id) },
+      data: { deletedAt: new Date() },
+    });
   },
 };
 
-export default PostModel;
+export default Post;

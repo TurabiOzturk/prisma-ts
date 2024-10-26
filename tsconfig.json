@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ES2022",
+    "target": "ES2020", // Lower the target to ES2020 for better compatibility
+    "module": "commonjs", // Set to commonjs for Node.js compatibility
     "allowJs": true,
     "types": ["node"],
     "removeComments": true,
@@ -10,6 +10,7 @@
     "noImplicitAny": true,
     "sourceMap": true,
     "outDir": "./dist",
+    "rootDir": "./src",
     "strict": true,
     "baseUrl": ".",
     "forceConsistentCasingInFileNames": true,
@@ -19,19 +20,18 @@
     "moduleResolution": "node",
     "skipLibCheck": true,
     "exactOptionalPropertyTypes": false,
-    "strictNullChecks": true,
-    "rootDirs": ["."]
+    "strictNullChecks": true
   },
   "ts-node": {
     "compilerOptions": {
       "moduleDetection": "force",
-      "module": "CommonJS",
+      "module": "commonjs", // Make consistent with compiler options
       "resolveJsonModule": true,
       "allowJs": true,
       "esModuleInterop": true,
       "isolatedModules": true
     }
   },
-  "include": ["src/**/*", "**/*.ts"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules"]
 }

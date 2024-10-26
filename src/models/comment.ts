@@ -1,36 +1,50 @@
-import knex from "../models/knex";
+import { PrismaClient } from "@prisma/client";
 
-interface Comment {
-  id: number;
-  post_id: number;
-  content: string;
-  commenter_name: string;
-  created_at: Date;
-}
+const prisma = new PrismaClient();
 
-const CommentModel = {
-  getAll: (): Promise<Comment[]> => {
-    return knex<Comment>("comments").whereNull("deleted_at");
+export const Comment = {
+  create: async (comment: {
+    post_id: number;
+    commenter_name: string;
+    content: string;
+  }) => {
+    return await prisma.comment.create({
+      data: {
+        post: { connect: { id: comment.post_id } },
+        commenterName: comment.commenter_name,
+        content: comment.content,
+      },
+    });
   },
 
-  getById: (id: number): Promise<Comment | undefined> => {
-    return knex<Comment>("comments").where({ id }).first();
+  getAll: async (query_string: { post?: number; commenter?: string }) => {
+    const { post, commenter } = query_string;
+    return await prisma.comment.findMany({
+      where: {
+        ...(post ? { postId: post } : {}),
+        ...(commenter ? { commenterName: commenter } : {}),
+      },
+    });
   },
 
-  create: (comment: Omit<Comment, "id">): Promise<Comment[]> => {
-    return knex<Comment>("comments").insert(comment).returning("*");
+  getById: async (id: number) => {
+    return await prisma.comment.findUnique({
+      where: { id },
+    });
   },
 
-  update: (
-    id: number,
-    comment: Partial<Omit<Comment, "id">>
-  ): Promise<Comment[]> => {
-    return knex<Comment>("comments").where({ id }).update(comment).returning("*");
+  update: async (id: number, comment: { content?: string }) => {
+    return await prisma.comment.update({
+      where: { id },
+      data: comment,
+    });
   },
 
-  delete: (id: number): Promise<Comment[]> => {
-    return knex<Comment>("comments").where({ id }).returning("*");
+  delete: async (id: number) => {
+    return await prisma.comment.delete({
+      where: { id },
+    });
   },
 };
 
-export default CommentModel;
+export default Comment;

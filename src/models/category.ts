@@ -1,37 +1,62 @@
-import knex from '../models/knex';
+import { PrismaClient } from "@prisma/client";
+import { SHOW_DELETED } from "../const";
 
-interface Category {
-  id: number;
-  name: string;
-  description?: string;
-  created_at: Date;
-  updated_at?: Date;
-  deleted_at?: Date | null;
+const prisma = new PrismaClient();
+
+interface categoryQuery {
+  id?: number;
+  showDeleted?: string;
 }
 
-const CategoryModel = {
-  getAll: (): Promise<Category[]> => {
-    return knex<Category>('categories').whereNull('deleted_at');
+const Category = {
+  getAll: async (query: categoryQuery) => {
+    const { showDeleted } = query;
+    if (showDeleted === SHOW_DELETED.TRUE) {
+      return await prisma.category.findMany();
+    } else if (showDeleted === SHOW_DELETED.ONLY_DELETED) {
+      return await prisma.category.findMany({
+        where: {
+          deletedAt: {
+            not: null,
+          },
+        },
+      });
+    } else {
+      return await prisma.category.findMany({
+        where: {
+          deletedAt: null,
+        },
+      });
+    }
   },
 
-  getById: (id: number): Promise<Category | undefined> => {
-    return knex<Category>('categories').where({ id }).first();
+  getById: async (id: number) => {
+    return await prisma.category.findUnique({
+      where: {
+        id: Number(id),
+      },
+    });
   },
 
-  create: (category: Omit<Category, 'id'>): Promise<Category[]> => {
-    return knex<Category>('categories').insert(category).returning('*');
+  create: async (name: string) => {
+    return await prisma.category.create({
+      data: { name },
+    });
   },
 
-  update: (id: number, category: Partial<Omit<Category, 'id'>>): Promise<Category[]> => {
-    return knex<Category>('categories').where({ id }).update(category).returning('*');
+  update: async (id: number, udpated_name: string) => {
+    return await prisma.category.update({
+      where: { id: Number(id) },
+      data: { name: udpated_name },
+    });
   },
 
-  delete: (id: number): Promise<Category[]> => {
-    return knex<Category>('categories')
-      .where({ id })
-      .update({ deleted_at: knex.fn.now() })
-      .returning('*');
+  delete: async (id: number) => {
+    return await prisma.category.update({
+      where: { id: Number(id) },
+      data: { deletedAt: new Date() },
+    });
   },
 };
 
-export default CategoryModel;
+export default Category;

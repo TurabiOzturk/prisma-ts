@@ -8,10 +8,12 @@ const Post = {
     status?: string;
     showDeleted?: string;
     category?: string;
+    tags?: string;
   }) => {
-    const { category, status, showDeleted } = query_string;
+    const { category, status, showDeleted, tags } = query_string;
     let query_conditions: any = {};
 
+    // Existing conditions for deleted and category filtering
     if (showDeleted === SHOW_DELETED.FALSE) {
       query_conditions.deletedAt = null;
     } else if (showDeleted === SHOW_DELETED.ONLY_DELETED) {
@@ -31,6 +33,21 @@ const Post = {
       query_conditions.deletedAt = null;
     }
 
+    // Tags handling
+    if (tags) {
+      const tagIds = tags.split(",").map(Number);
+      if (tagIds.length > 0 && !tagIds.includes(NaN)) {
+        query_conditions.postTag = {
+          some: {
+            tagId: {
+              in: tagIds,
+            },
+          },
+        };
+      }
+    }
+
+    // Return response
     return await prisma.post.findMany({
       where: query_conditions,
     });
@@ -69,7 +86,7 @@ const Post = {
       },
     });
   },
- 
+
   delete: async (id: number) => {
     return await prisma.post.update({
       where: { id: Number(id) },

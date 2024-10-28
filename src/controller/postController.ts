@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import Post from "../models/post";
 
 export const getAllPosts = async (req: Request, res: Response) => {
+
+
   try {
     const posts = await Post.getAll(req.query);
     res.json(posts);

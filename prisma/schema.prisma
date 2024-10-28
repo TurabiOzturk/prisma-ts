@@ -66,3 +66,9 @@ model PostTag {
   @@id([postId, tagId])
   @@map("post_tags")
 }
+
+// model User {
+//   id Int @id @default(autoincrement())
+//   name String
+//   username String @map("user_name")
+// }

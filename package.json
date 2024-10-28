@@ -6,9 +6,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsx watch src/index.ts",
-    "start": "tsx src/index.ts",
-    "db:migrate": "knex migrate:latest --env development",
-    "db:migrate:make": "NODE_OPTIONS=\"--loader ts-node/esm\" knex migrate:make"
+    "start": "tsx src/index.ts"
   },
   "keywords": [],
   "author": "",

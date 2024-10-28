@@ -89,9 +89,7 @@ export const deletePost = async (req: Request, res: Response) => {
       return;
     }
     await Post.delete(id);
-    res
-      .status(200)
-      .json({ message: `Post "${deletedPost.title}" deleted` });
+    res.status(200).json({ message: `Post "${deletedPost.title}" deleted` });
   } catch (error) {
     res.status(500).json({
       message: "Error retrieving post",

@@ -26,7 +26,7 @@ export const createComment = async (req: Request, res: Response) => {
 
 export const getAllComments = async (req: Request, res: Response) => {
   try {
-    const comments = await Comment.getAll(req.query);
+    const comments = await Comment.getAll();
     res.json(comments);
   } catch (error) {
     res

@@ -16,16 +16,10 @@ export const Comment = {
       },
     });
   },
-
-  getAll: async (query_string: { post?: number; commenter?: string }) => {
-    const { post, commenter } = query_string;
-    return await prisma.comment.findMany({
-      where: {
-        ...(post ? { postId: post } : {}),
-        ...(commenter ? { commenterName: commenter } : {}),
-      },
-    });
+  getAll: async () => {
+    return await prisma.comment.findMany();
   },
+
 
   getById: async (id: number) => {
     return await prisma.comment.findUnique({

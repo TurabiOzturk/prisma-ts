@@ -1,1 +1,1 @@
-default: "table=pascal,singular; mapTable=snake,plural; field=snake; mapField=snake; enum=pascal; mapEnum=snake"
+default: 

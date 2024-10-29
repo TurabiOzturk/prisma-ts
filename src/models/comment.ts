@@ -7,19 +7,20 @@ export const Comment = {
     post_id: number;
     commenter_name: string;
     content: string;
+    userId: number;
   }) => {
     return await prisma.comment.create({
       data: {
         post: { connect: { id: comment.post_id } },
         commenterName: comment.commenter_name,
         content: comment.content,
+        userId: comment.userId,
       },
     });
   },
   getAll: async () => {
     return await prisma.comment.findMany();
   },
-
 
   getById: async (id: number) => {
     return await prisma.comment.findUnique({

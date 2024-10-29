@@ -53,12 +53,18 @@ const Post = {
     });
   },
 
-  create: async (categoryId: number, title: string, content: string) => {
+  create: async (post: {
+    categoryId: number;
+    title: string;
+    content: string;
+    userId: number;
+  }) => {
     return await prisma.post.create({
       data: {
-        categoryId,
-        title,
-        content,
+        category: { connect: { id: post.categoryId } },
+        title: post.title,
+        content: post.content,
+        userId: post.userId,
       },
     });
   },

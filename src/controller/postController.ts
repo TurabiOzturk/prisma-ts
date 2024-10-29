@@ -2,8 +2,6 @@ import { Request, Response } from "express";
 import Post from "../models/post";
 
 export const getAllPosts = async (req: Request, res: Response) => {
-
-
   try {
     const posts = await Post.getAll(req.query);
     res.json(posts);
@@ -17,12 +15,12 @@ export const getAllPosts = async (req: Request, res: Response) => {
 
 export const createPost = async (req: Request, res: Response) => {
   try {
-    const { categoryId, title, content } = req.body;
+    const { categoryId, title, content, userId } = req.body;
     if (!categoryId || !title || !content) {
       res.status(400).json({ message: "All fields are required" });
       return;
     }
-    const post = await Post.create(categoryId, title, content);
+    const post = await Post.create({ categoryId, title, content, userId });
     res.status(201).json(post);
   } catch (error) {
     res.status(500).json({

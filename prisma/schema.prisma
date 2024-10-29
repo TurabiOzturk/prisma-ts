@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -14,8 +11,8 @@ datasource db {
 }
 
 model Category {
-  id        Int       @id @default(autoincrement())
-  name      String
+  id        Int       @id @default(autoincrement()) @map("id")
+  name      String    @map("name")
   createdAt DateTime  @default(now()) @map("created_at")
   deletedAt DateTime? @map("deleted_at")
   posts     Post[]
@@ -24,34 +21,38 @@ model Category {
 }
 
 model Post {
-  id          Int       @id @default(autoincrement())
+  id          Int       @id @default(autoincrement()) @map("id")
   categoryId  Int       @map("category_id")
-  title       String
-  content     String
+  userId      Int       @map("user_id")
+  title       String    @map("title")
+  content     String    @map("content")
   createdAt   DateTime  @default(now()) @map("created_at")
   deletedAt   DateTime? @map("deleted_at")
   publishedAt DateTime? @map("published_at")
   category    Category  @relation(fields: [categoryId], references: [id])
   comment     Comment[]
   postTag     PostTag[]
+  User        User[]
 
   @@map("posts")
 }
 
 model Comment {
-  id            Int      @id @default(autoincrement())
+  id            Int      @id @default(autoincrement()) @map("id")
   postId        Int      @map("post_id")
-  content       String
+  userId        Int      @map("user_id")
+  content       String   @map("content")
   commenterName String   @map("commenter_name")
   createdAt     DateTime @default(now()) @map("created_at")
   post          Post     @relation(fields: [postId], references: [id])
+  User          User[]
 
   @@map("comments")
 }
 
 model Tag {
-  id      Int       @id @default(autoincrement())
-  name    String
+  id      Int       @id @default(autoincrement()) @map("id")
+  name    String    @map("name")
   postTag PostTag[]
 
   @@map("tags")
@@ -67,8 +68,29 @@ model PostTag {
   @@map("post_tags")
 }
 
-// model User {
-//   id Int @id @default(autoincrement())
-//   name String
-//   username String @map("user_name")
-// }
+model User {
+  id             Int            @id @default(autoincrement()) @map("id")
+  userName       String         @unique @map("user_name")
+  name           String         @map("name")
+  hashedPassword String         @map("hashed_password")
+  role           String         @default("member") @map("role")
+  posts          Post[]
+  comments       Comment[]
+  deletedAt      DateTime?      @map("deleted_at")
+  RefreshToken   RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        Int       @id @default(autoincrement())
+  userId    Int       @map("user_id")
+  createdAt DateTime  @default(now()) @map("created_at")
+  updatedAt DateTime  @updatedAt @map("updated_at")
+  expiresAt DateTime  @map("expires_at")
+  revokedAt DateTime? @map("revoked_at")
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("refresh_tokens")
+}
